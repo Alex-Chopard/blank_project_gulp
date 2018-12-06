@@ -10,6 +10,7 @@ var cleanCSS = require('gulp-clean-css');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var babelify = require('babelify');
+var vueify = require('vueify');
 
 var webSRC = 'src';
 var webDIST = 'dist';
@@ -56,15 +57,24 @@ gulp.task('js[web]:dev', () => {
       transform: [
         babelify.configure({
           presets: ['es2015']
-        })
+        }),
+        vueify
       ],
       debug: true
     }))
+    // .pipe(vueify())
     .pipe(gulp.dest('./' + webDIST + '/js/'))
     .pipe(browserSync.reload({
       stream: true
     }));
 });
+
+gulp.task('vue[web]:dev', function() {
+  return gulp.src(['./' + webSRC + '/**/*.vue'])
+    .pipe(vueify())
+    .pipe(gulp.dest('./' + webDIST + '/js/'));
+});
+
 
 gulp.task('sass[web]:dev', () => {
   return gulp.src('./' + webSRC + '/scss/main.scss')
@@ -96,7 +106,7 @@ gulp.task('static[web]:dev', () => {
 gulp.task('[web]:dev', () => {
   runSequence(
     ['clean'],
-    ['html[web]:dev', 'js[web]:dev', 'sass[web]:dev', 'static[web]:dev'],
+    ['html[web]:dev', 'js[web]:dev', 'vue[web]:dev', 'sass[web]:dev', 'static[web]:dev'],
     ['serve[web]:dev'],
     ['watch[web]:dev']
   );
